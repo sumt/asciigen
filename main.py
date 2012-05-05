@@ -18,7 +18,8 @@ import webapp2, cgi, re
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-        self.response.out.write("ASCIIGEN")
+      self.response.headers['Content-Type'] = 'text/plain'
+      self.response.out.write("ASCIIGEN")
 
-app = webapp2.WSGIApplication([('/', MainHandler)]
+app = webapp2.WSGIApplication([('/', MainHandler)],
                               debug=True)
