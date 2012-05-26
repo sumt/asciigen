@@ -29,7 +29,7 @@ asciigen_template = Template("""
 <title>{{ page_title }}</title>
 </head>
 <body>
-<a href="{{ selfpage }}"><h2>/ASCIIGEN/</h2></a>
+<a href="{{ selfpage }}"><h2>/GENASCII/</h2></a>
 <div>
 <form method="post" enctype="multipart/form-data" action="{{ imageHandlerPage }}">
   <label>
@@ -46,7 +46,7 @@ asciigen_template = Template("""
 asciigen_title = "ASCII"
 
 #global website addresses
-asciigen_page = "/asciigen"
+asciigen_page = "/genascii"
 image_debug_page = "/debug/([^/]+)?"
 image_debug_page_sub = "/debug/%(blobid)s"
 upload_url = "/upload"
@@ -100,7 +100,7 @@ class ShowImageHandler(webapp2.RequestHandler):
 class MainHandler(webapp2.RequestHandler):
     def get(self):
       self.response.headers['Content-Type'] = 'text/plain'
-      self.response.out.write("ASCIIGEN")
+      self.response.out.write("GENASCII")
 
 #define a list of websites our server will handle, and map them to the handler class
 app = webapp2.WSGIApplication([('/', MainHandler),
