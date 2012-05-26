@@ -10,7 +10,6 @@ handlers:
   upload: favicon\.ico
 - url: /stylesheet
   static_dir: stylesheets
-
 - url: .*
   script: main.app
 
@@ -19,5 +18,5 @@ libraries:
   version: "2.5.1"
 - name: jinja2
   version: latest
-- name: pil
+- name: PIL
   version: latest
