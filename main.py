@@ -20,6 +20,9 @@ from google.appengine.ext import blobstore
 from google.appengine.ext import db
 from google.appengine.api import images
 
+#importing ascii art generator classes here
+
+
 #ASCIIGEN Prototype
 
 asciigen_template = Template("""
@@ -126,6 +129,7 @@ class ComparisonHandler(GeneralHandler):
     """
     asciiart = asciiart.replace(" ", "&nbsp;")
     asciiart = asciiart.replace("\n", "<br>")
+    #TODO: webpage could be hacked if ascii generated contains HTML element tags
     #TODO: check if blobid exist before using it
     self.write(asciigen_result_template, cssfile = cssfile, page_title = asciigen_title, selfpage = asciigen_page, asciiArt = asciiart, imgLocation = image_debug_page_sub % {"blobid" : blobid});
 
