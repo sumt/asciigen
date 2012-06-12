@@ -43,19 +43,41 @@ asciigen_template = Template("""
 </html>
 """)
 
+asciigen_result_template = Template("""
+<html>
+<head>
+<link type="text/css" rel="stylesheet" href="{{ cssfile }}">
+<title>{{ page_title }}</title>
+</head>
+<body>
+<a href="{{ selfpage }}"><h2>/GENASCII/</h2></a>
+<div class="comparison-pane">
+  <div class="image-pane">
+  <img src="{{ imgLocation }}" />
+  </div>
+  <div class="asciiart-pane">
+  {{ asciiArt }}
+  </div>
+</div>
+</body>
+</html>
+""")
+
 asciigen_title = "ASCII"
 
 #global website addresses
 asciigen_page = "/genascii"
 image_debug_page = "/debug/([^/]+)?"
 image_debug_page_sub = "/debug/%(blobid)s"
+comparison_page = "/compare/([^/]+)?"
+comparison_page_sub = "/compare/%(blobid)s"
 upload_url = "/upload"
 
 #global webpage variable
 image_name = "image"
 
 #global css file for all sites
-cssfile = "stylesheet/asciigen.css"
+cssfile = "/stylesheets/asciigen.css"
 
 #database containing images that we'll save temporarily
 class ImageDB(db.Model):
@@ -81,7 +103,31 @@ class AsciiGenHandler(GeneralHandler):
     img = ImageDB(mImage = blob_key)
     img.put()
     #redirect to the debug page that shows the image
-    self.redirect(image_debug_page_sub % {"blobid" : img.key().id()}) #TODO: replace 
+    #self.redirect(image_debug_page_sub % {"blobid" : img.key().id()}) #TODO: replace 
+    self.redirect(comparison_page_sub % {"blobid" : img.key().id()})
+
+class ComparisonHandler(GeneralHandler):
+  def get(self, blobid):
+    #TODO: replace this dummy ASCII art
+    asciiart = """
+    /---------------------------------------\\
+    |                                       |
+    |                                       |
+    |                                       |
+    |                                       |
+    |                                       |
+    |                                       |
+    |                                       |
+    |                          ART          |
+    |                                       |
+    |                                       |
+    |                                       |
+   \\---------------------------------------/
+    """
+    asciiart = asciiart.replace(" ", "&nbsp;")
+    asciiart = asciiart.replace("\n", "<br>")
+    #TODO: check if blobid exist before using it
+    self.write(asciigen_result_template, cssfile = cssfile, page_title = asciigen_title, selfpage = asciigen_page, asciiArt = asciiart, imgLocation = image_debug_page_sub % {"blobid" : blobid});
 
 #DEBUG Handler that shows the image being uploaded
 class ShowImageHandler(webapp2.RequestHandler):
@@ -92,7 +138,8 @@ class ShowImageHandler(webapp2.RequestHandler):
         blob_reader = blobstore.BlobReader(img_file.mImage)
         raw_file = blob_reader.read() #get the raw data of the image from blobInfo key
         img = images.Image(raw_file)
-        img.im_feeling_lucky() #a random transformation, 1 transformation is required
+        #img.im_feeling_lucky() #a random transformation, 1 transformation is required
+        img.resize(650, 650)
         thumbnail = img.execute_transforms(output_encoding = images.JPEG)
         self.response.headers['Content-Type'] = 'image/jpeg'
         self.response.out.write(thumbnail)
@@ -106,6 +153,7 @@ class MainHandler(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([('/', MainHandler),
                                (asciigen_page, AsciiGenHandler),
                                (upload_url, AsciiGenHandler),
-                               (image_debug_page, ShowImageHandler)],
+                               (image_debug_page, ShowImageHandler),
+                               (comparison_page, ComparisonHandler)],
                               debug=True)
 

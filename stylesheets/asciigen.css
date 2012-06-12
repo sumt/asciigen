@@ -1,0 +1,38 @@
+h2 {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 30px;
+}
+
+label {
+  display: block;
+}
+
+input[type=submit] {
+  font-size: 18px;
+}
+
+.comparison-pane {
+  position: relative;
+}
+
+.image-pane {
+  margin: 2px;
+  position: absolute;
+  left:0px;
+  border: 1px solid #ffffff;
+  height: 650px;
+  width: 650px;
+}
+
+.image-pane img {
+  margin: 3px;
+}
+
+.asciiart-pane {
+  margin: 2px;
+  position: absolute;
+  right:0px;
+  border: 1px solid #ffffff;
+  font-family: Courier New;
+}
