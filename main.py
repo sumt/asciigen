@@ -21,7 +21,7 @@ from google.appengine.ext import db
 from google.appengine.api import images
 
 #importing ascii art generator classes here
-
+import genascii
 
 #ASCIIGEN Prototype
 
@@ -127,11 +127,19 @@ class ComparisonHandler(GeneralHandler):
     |                                       |
    \\---------------------------------------/
     """
+    asciiart = self.imageToAscii(blobid)
     asciiart = asciiart.replace(" ", "&nbsp;")
     asciiart = asciiart.replace("\n", "<br>")
     #TODO: webpage could be hacked if ascii generated contains HTML element tags
     #TODO: check if blobid exist before using it
     self.write(asciigen_result_template, cssfile = cssfile, page_title = asciigen_title, selfpage = asciigen_page, asciiArt = asciiart, imgLocation = image_debug_page_sub % {"blobid" : blobid});
+
+  def imageToAscii(self, image_id):
+    img_file = ImageDB.get_by_id(int(image_id))
+    blob_reader = blobstore.BlobReader(img_file.mImage)
+    raw_file = blob_reader.read()
+    ascii_image = genascii.GenAscii(data=raw_file)
+    return ascii_image.draw(ascii_image.combinepixels(10))
 
 #DEBUG Handler that shows the image being uploaded
 class ShowImageHandler(webapp2.RequestHandler):
