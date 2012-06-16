@@ -1,33 +1,14 @@
-import os
-import StringIO
+import os, StringIO
 from PIL import Image
 
 class GenAscii(object):
-
-  '''
-  location - path of the image file to be converted.
-  self.image - the image object from the PIL library
-  self.pixels - list of pixels from the image object  
-  '''
-  def __init__(self, location="", data=""):
-    if location != "":
-      self.image=Image.open(location).convert('L')
-      self.pixels=list(self.image.getdata())
-    elif data != "":
-      self.image=Image.open(StringIO.StringIO(data)).convert('L')
-      self.pixels=list(self.image.getdata())
-    else:
-      self.image = None
-      self.pixels = None
-
   '''
   Divides image into blocks of nxn pixels where n = combinefactor; and calculates the average of each block. 
   combinefactor - determines size of each block; suppose, n is entered, then a block would have n x n pixels
   return - list containing a list of pixel averages, and the width and height of the ascii image; this list is used as the "pixeldata" for the draw function
    '''       
-  def combinepixels(self, combinefactor):
-    pixels = self.pixels
-    width, height = self.image.size
+  def combinepixels(self, image, pixels, combinefactor):
+    width, height = image.size
     averages=[]
     for y in range(height/combinefactor):
       y=y*combinefactor
@@ -61,7 +42,13 @@ class GenAscii(object):
   def __transformpixel(self,pixel, chars):
     chars = list([x for x in chars])
     return chars[pixel/25]
-       
 
-
-
+  """
+  Interface method that returns the generated ascii art based on the image raw_image
+  """
+  def genart(self, raw_image):
+    img = Image.open(StringIO.StringIO(raw_image)).convert('L')
+    pixels = list(img.getdata())
+    ascii_pixels = self.combinepixels(img, pixels, 10) #TODO: find a better combine factor
+    return self.draw(ascii_pixels)
+    
