@@ -37,7 +37,7 @@ asciigen_template = Template("""
 </head>
 <body>
 <a href="{{ selfpage }}"><h2>/GENASCII/</h2></a>
-<div>
+<div class="upload-pane">
 <form method="post" enctype="multipart/form-data" action="{{ imageHandlerPage }}">
   <label>
     <div>Image File</div>
