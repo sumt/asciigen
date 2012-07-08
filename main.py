@@ -26,6 +26,7 @@ from google.appengine.api import images
 #IMPORTANT2: all art generators must be saved in a file with the same name but all
 #letters in lower case
 import genascii
+import genasciiknn
 
 #ASCIIGEN Prototype
 
@@ -124,7 +125,6 @@ class AsciiGenHandler(GeneralHandler):
 
 class ComparisonHandler(GeneralHandler):
   def get(self, blobid):
-    #TODO: replace this dummy ASCII art
     asciiart = """
     /---------------------------------------\\
     |                                       |
@@ -153,7 +153,7 @@ class ComparisonHandler(GeneralHandler):
     raw_file = blob_reader.read()
     #TODO: optimization: save AsciiImageGenerator as a private member
     #TODO: choose method of generating ASCII here
-    return AsciiImageGenerator().imageToAscii("GenAscii", raw_file)
+    return AsciiImageGenerator().imageToAscii("GenAsciiKNN", raw_file)
 
 #DEBUG Handler that shows the image being uploaded
 class ShowImageHandler(webapp2.RequestHandler):
