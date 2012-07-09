@@ -75,6 +75,8 @@ class GenAsciiKNN(object):
     assert besti != '' #just in case our infinity fails
     return besti
 
+  #TODO: possible improvement: use line filtering to reduce the picture complexity before
+  #      doing KNN
   def genart(self, raw_image):
     """
     Interface function

@@ -1,19 +1,5 @@
 #!/usr/bin/env python
-#
-# Copyright 2007 Google Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
+
 import webapp2, cgi, sys, types, re
 from jinja2 import Template
 from google.appengine.ext import blobstore
@@ -27,6 +13,9 @@ from google.appengine.api import images
 #letters in lower case
 import genascii
 import genasciiknn
+
+#Add your generation algorithm class name here
+GenerationMethods = ["GenAscii", "GenAsciiKNN"]
 
 #ASCIIGEN Prototype
 
@@ -45,6 +34,10 @@ asciigen_template = Template("""
     <input type="file" name="{{ vImageName }}" size="40">
   </label>
   <input type="submit" value="Upload">
+  <label>Generation Methods:</label><br>
+  {% for entry in algorithm_methods %}
+  <input type="radio" name="algorithm_method" value="{{ entry }}">{{ entry }}<br>
+  {% endfor %}
 </form>
 </div>
 </body>
@@ -78,7 +71,7 @@ asciigen_page = "/genascii"
 image_debug_page = "/debug/([^/]+)?"
 image_debug_page_sub = "/debug/%(blobid)s"
 comparison_page = "/compare/([^/]+)?"
-comparison_page_sub = "/compare/%(blobid)s"
+comparison_page_sub = "/compare/%(blobid)s?algorithm=%(algorithm_method)s"
 upload_url = "/upload"
 
 #global webpage variable
@@ -113,18 +106,21 @@ class GeneralHandler(webapp2.RequestHandler):
 
 class AsciiGenHandler(GeneralHandler):
   def get(self):
-    self.write(asciigen_template, cssfile = cssfile, page_title = asciigen_title, selfpage = asciigen_page, imageHandlerPage = blobstore.create_upload_url(upload_url), vImageName = image_name)
+    self.write(asciigen_template, cssfile = cssfile, page_title = asciigen_title, selfpage = asciigen_page, imageHandlerPage = blobstore.create_upload_url(upload_url), vImageName = image_name, algorithm_methods = GenerationMethods)
 
   def post(self):
+    algorithm = self.request.get('algorithm_method')
     blob_key = blobstore.parse_blob_info(self.request.POST[image_name])
     img = ImageDB(mImage = blob_key)
     img.put()
     #redirect to the debug page that shows the image
-    #self.redirect(image_debug_page_sub % {"blobid" : img.key().id()}) #TODO: replace 
-    self.redirect(comparison_page_sub % {"blobid" : img.key().id()})
+    #self.redirect(image_debug_page_sub % {"blobid" : img.key().id()}) 
+    self.redirect(comparison_page_sub % {"blobid" : img.key().id(), "algorithm_method" : algorithm})
 
 class ComparisonHandler(GeneralHandler):
   def get(self, blobid):
+    algorithm = self.request.get('algorithm')
+    #placeholder asciiart
     asciiart = """
     /---------------------------------------\\
     |                                       |
@@ -140,20 +136,19 @@ class ComparisonHandler(GeneralHandler):
     |                                       |
    \\---------------------------------------/
     """
-    asciiart = self.imageToAscii(blobid)
+    asciiart = self.imageToAscii(blobid, algorithm)
     asciiart = asciiart.replace(" ", "&nbsp;")
     asciiart = asciiart.replace("\n", "<br>")
     #TODO: webpage could be hacked if ascii generated contains HTML element tags
     #TODO: check if blobid exist before using it
     self.write(asciigen_result_template, cssfile = cssfile, page_title = asciigen_title, selfpage = asciigen_page, asciiArt = asciiart, imgLocation = image_debug_page_sub % {"blobid" : blobid});
 
-  def imageToAscii(self, image_id):
+  def imageToAscii(self, image_id, algorithm):
     img_file = ImageDB.get_by_id(int(image_id))
     blob_reader = blobstore.BlobReader(img_file.mImage)
     raw_file = blob_reader.read()
     #TODO: optimization: save AsciiImageGenerator as a private member
-    #TODO: choose method of generating ASCII here
-    return AsciiImageGenerator().imageToAscii("GenAsciiKNN", raw_file)
+    return AsciiImageGenerator().imageToAscii(algorithm, raw_file)
 
 #DEBUG Handler that shows the image being uploaded
 class ShowImageHandler(webapp2.RequestHandler):

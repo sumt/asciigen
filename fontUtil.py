@@ -23,3 +23,12 @@ def squareDist(image1, image2):
   minlen = min(len(image1_data), len(image2_data))
   square_dist = reduce(lambda x, y: x + (y[1] - y[0])**2, zip(image1_data[:minlen], image2_data[:minlen]), 0)
   return square_dist
+
+#calculate the linear distance between 2 images as if they are 2 vectors
+def absDist(image1, image2):
+  image1_data = list(image1.getdata())
+  image2_data = list(image2.getdata())
+  minlen = min(len(image1_data), len(image2_data))
+  dist = reduce(lambda x, y: x + (y[1] - y[0]), zip(image1_data[:minlen], image2_data[:minlen]), 0)
+  return dist
+  
